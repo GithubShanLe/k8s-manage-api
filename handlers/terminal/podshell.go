@@ -102,16 +102,6 @@ func (c *WSClient) Next() *remotecommand.TerminalSize {
 	}
 }
 
-// 设置 WebSocket 升级器
-// var upgrader = websocket.Upgrader{
-// 	ReadBufferSize:  1024,
-// 	WriteBufferSize: 1024,
-// 	CheckOrigin: func(r *http.Request) bool {
-// 		return true // 在生产环境中应该限制来源
-// 	},
-// 	HandshakeTimeout: 10 * time.Second,
-// }
-
 // PodExec 处理 Pod 执行命令的 WebSocket 请求
 func PodExec(w http.ResponseWriter, r *http.Request) {
 	log.Println("开始处理 Pod Shell 请求")
