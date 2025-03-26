@@ -7,6 +7,8 @@ import (
 
 	"k8s-manage-api/handlers"
 	nodepool "k8s-manage-api/handlers/node_pool"
+	"k8s-manage-api/handlers/rbac/clusterrole"
+	"k8s-manage-api/handlers/rbac/role"
 	"k8s-manage-api/handlers/sa"
 	"k8s-manage-api/handlers/service"
 	_ "k8s-manage-api/handlers/terminal"
@@ -73,6 +75,10 @@ func main() {
 			workload.Liststatefulset(w, r)
 		case "/api/workload/pod/metrics":
 			workload.GetPodMetric(w, r)
+		case "/api/rbac/role/list":
+			role.ListRole(w, r)
+		case "/api/rbac/clusterrole/list":
+			clusterrole.ListClusterRole(w, r)
 		default:
 			http.NotFound(w, r)
 		}
