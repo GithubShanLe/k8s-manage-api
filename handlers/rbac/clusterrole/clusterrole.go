@@ -28,6 +28,7 @@ type ClusterRole struct {
 	Pods       string            `json:"pods"`
 	CreateTime string            `json:"createTime"`
 	Rules      []RuleInfo        `json:"rules"`
+	Yaml       string            `json:"yaml"`
 }
 type RuleInfo struct {
 	Verbs    []string `json:"verbs"`
@@ -62,12 +63,19 @@ func ListClusterRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for _, clusterRole := range clusterRoles.Items {
+		yamlData, err := k8s.ResourceToYAML(&clusterRole)
+		if err != nil {
+			resp.ErrorCode = "500"
+			resp.ErrorMessage = fmt.Sprintf("转换YAML失败: %v", err)
+			return
+		}
 		resp.ClusterRoles = append(resp.ClusterRoles, ClusterRole{
 			Name:       clusterRole.Name,
 			Namespace:  clusterRole.Namespace,
 			Labels:     clusterRole.Labels,
 			CreateTime: clusterRole.CreationTimestamp.Format("2006-01-02 15:04:05"),
 			Rules:      returnRules(clusterRole),
+			Yaml:       string(yamlData),
 		})
 	}
 	return

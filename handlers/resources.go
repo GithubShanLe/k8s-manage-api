@@ -91,3 +91,47 @@ func GetResources(w http.ResponseWriter, r *http.Request) {
 	}
 	return
 }
+
+
+
+
+type YamlApplyRequest struct {
+	Yaml      string `json:"yaml"`
+}
+
+type YamlApplyResponse struct {
+	ErrorResponse	
+}
+
+func YamlApply(w http.ResponseWriter, r *http.Request) {
+	var resp YamlApplyResponse
+	defer func() {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(resp)
+	}()
+	
+	var req YamlApplyRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		resp.ErrorCode = "400"
+		resp.ErrorMessage = fmt.Sprintf("解析请求失败: %v", err)
+		return
+	}
+
+	// 先尝试 dry-run 检查资源是否存在
+	err := k8s.YamlOperationDryRunClient.Get(req.Yaml)
+	if err != nil {
+		// 资源不存在，使用 Apply 创建
+		if err := k8s.YamlOperationClient.Create(req.Yaml); err != nil {
+			resp.ErrorCode = "400"
+			resp.ErrorMessage = fmt.Sprintf("创建资源失败: %v", err)
+			return
+		}
+	} else {
+		// 资源存在，使用 Patch 更新
+		if err := k8s.YamlOperationClient.Patch(req.Yaml); err != nil {
+			resp.ErrorCode = "400"
+			resp.ErrorMessage = fmt.Sprintf("更新资源失败: %v", err)
+			return
+		}
+	}
+}

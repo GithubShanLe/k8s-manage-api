@@ -31,6 +31,8 @@ type Pod struct {
 	Pods       string            `json:"pods"`
 	Restart    int32             `json:"restart"`
 	CreateTime string            `json:"createTime"`
+	Yaml       string            `json:"yaml"`
+	Status     string            `json:"status"`
 }
 
 func ListPod(w http.ResponseWriter, r *http.Request) {
@@ -60,6 +62,16 @@ func ListPod(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for _, pod := range pods.Items {
+		pod.APIVersion = "v1"
+		pod.Kind = "Pod"
+		pod.ManagedFields = nil
+		// 转换为 YAML
+		yamlData,err:=json.Marshal(pod)
+		if err != nil {
+			resp.ErrorCode = "500"
+			resp.ErrorMessage = fmt.Sprintf("转换YAML失败: %v", err)
+			return
+		}
 		resp.Pods = append(resp.Pods, Pod{
 			Name:      pod.Name,
 			Namespace: pod.Namespace,
@@ -102,6 +114,8 @@ func ListPod(w http.ResponseWriter, r *http.Request) {
 				}
 				return restart
 			}(),
+			Status: string(pod.Status.Phase),
+			Yaml: string(yamlData),
 		})
 	}
 	return

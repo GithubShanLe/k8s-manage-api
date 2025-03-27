@@ -32,7 +32,7 @@ type Service struct {
 	ExternalEndpoints []string `json:"externalEndpoints"`
 	// 内部端点列表
 	InternalEndpoints []string `json:"internalEndpoints"`
-
+	Yaml string `json:"yaml"`
 	CreateTime string `json:"createTime"`
 }
 
@@ -63,6 +63,14 @@ func ListService(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for _, svc := range svcs.Items {
+		// 转换为 YAML
+		yamlData, err := k8s.ResourceToYAML(&svc)
+		if err != nil {
+			resp.ErrorCode = "500"
+			resp.ErrorMessage = fmt.Sprintf("转换YAML失败: %v", err)
+			return
+		}
+
 		resp.Services = append(resp.Services, Service{
 			Name:              svc.Name,
 			Namespace:         svc.Namespace,
@@ -78,6 +86,7 @@ func ListService(w http.ResponseWriter, r *http.Request) {
 				}
 				return eps
 			}(),
+			Yaml:       string(yamlData),
 			CreateTime: svc.CreationTimestamp.Format("2006-01-02 15:04:05"),
 		})
 	}

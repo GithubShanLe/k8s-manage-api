@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -14,6 +15,7 @@ import (
 
 var clientset *kubernetes.Clientset
 var discoveryClient *discovery.DiscoveryClient
+var dynamicClient *dynamic.DynamicClient
 var metriclient *versioned.Clientset
 var restConfig *rest.Config
 
@@ -39,6 +41,7 @@ func init() {
 	if err != nil {
 		panic(fmt.Sprintf("无法创建 Discovery 客户端: %v", err))
 	}
+	dynamicClient, err = dynamic.NewForConfig(config)
 
 	metriclient = versioned.NewForConfigOrDie(config)
 }
@@ -59,4 +62,8 @@ func GetMetricClient() *versioned.Clientset {
 
 func GetRestConfig() *rest.Config {
 	return restConfig
+}
+
+func GetDynamicClient() *dynamic.DynamicClient {
+	return dynamicClient
 }

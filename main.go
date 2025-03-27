@@ -79,6 +79,8 @@ func main() {
 			role.ListRole(w, r)
 		case "/api/rbac/clusterrole/list":
 			clusterrole.ListClusterRole(w, r)
+		case "/api/yaml/apply":
+			handlers.YamlApply(w, r)
 		default:
 			http.NotFound(w, r)
 		}
