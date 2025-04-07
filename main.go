@@ -6,9 +6,12 @@ import (
 	"net/http"
 
 	"k8s-manage-api/handlers"
+	"k8s-manage-api/handlers/dashboard"
 	nodepool "k8s-manage-api/handlers/node_pool"
 	"k8s-manage-api/handlers/rbac/clusterrole"
+	"k8s-manage-api/handlers/rbac/clusterrolebinding"
 	"k8s-manage-api/handlers/rbac/role"
+	"k8s-manage-api/handlers/rbac/rolebinding"
 	"k8s-manage-api/handlers/sa"
 	"k8s-manage-api/handlers/service"
 	_ "k8s-manage-api/handlers/terminal"
@@ -65,6 +68,8 @@ func main() {
 			workload.ListReplicaset(w, r)
 		case "/api/workload/pod/list":
 			workload.ListPod(w, r)
+		case "/api/workload/pod/delete":
+			workload.DeletePod(w, r)
 		case "/api/workload/job/list":
 			workload.ListJob(w, r)
 		case "/api/workload/cronjob/list":
@@ -79,8 +84,16 @@ func main() {
 			role.ListRole(w, r)
 		case "/api/rbac/clusterrole/list":
 			clusterrole.ListClusterRole(w, r)
+		case "/api/rbac/rolebinding/list":
+			rolebinding.ListRoleBinding(w, r)
+		case "/api/rbac/clusterrolebinding/list":
+			clusterrolebinding.ListClusterRoleBinding(w, r)	
 		case "/api/yaml/apply":
 			handlers.YamlApply(w, r)
+		case "/api/dashboard":
+			dashboard.GetClusterResourceStats(w, r)	
+		case "/api/node/metrics":
+			nodepool.GetNodeMetric(w, r)		
 		default:
 			http.NotFound(w, r)
 		}

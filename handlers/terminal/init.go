@@ -14,6 +14,7 @@ func init() {
 func StartServer(port int) {
 	http.HandleFunc("/execute/shell", HandleTerminal)
 	http.HandleFunc("/execute/podshell", PodExec)
+	http.HandleFunc( "/execute/podlogs", PodLogs)
 	log.Printf("WebSocket 和 HTTP API 服务器启动，监听端口: %d\n", port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }
